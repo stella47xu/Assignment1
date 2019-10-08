@@ -30,7 +30,7 @@ def preprocess_line(content):
         lines = lines.lower()
         # replace all characters to be removed by space
         rstr= r"[^0-9a-z\.\s]"
-        newlines = re.sub(rstr,'',lines)
+        newlines = re.sub(rstr,'',lines).strip()
         # convert all digits to 0
         digit_rstr = r'[0-9]+'
         newlines = re.sub(digit_rstr,'0',newlines)
