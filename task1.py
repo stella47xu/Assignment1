@@ -37,5 +37,5 @@ def preprocess_line(content):
         new_content.append(newlines)
     return new_content
 
-f_path = "training.de"
+f_path = "test"
 print(preprocess_line(fileReader(f_path)))
