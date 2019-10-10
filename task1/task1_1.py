@@ -14,6 +14,17 @@ def fileReader(path):
             content.append(line)
 
     return content
+def fileWriter(file, path):
+    '''
+    write files
+    :param file:
+    :param path:
+    :return:
+    '''
+    with open(path, 'w', encoding='utf-8') as f:
+        for line in file:
+            f.writelines(line+'\n')
+    f.close()
 
 def preprocess_line(content):
     '''
@@ -37,5 +48,7 @@ def preprocess_line(content):
         new_content.append(newlines)
     return new_content
 
-f_path = "test"
-print(preprocess_line(fileReader(f_path)))
+f_path = "../data/test"
+f_write_path = './test_output'
+stems = preprocess_line(fileReader(f_path))
+fileWriter(stems, f_write_path)
