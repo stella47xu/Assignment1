@@ -22,7 +22,7 @@ def flatten(sentence):
     '''
     new_list=[]
     for line in sentence:
-        new_line=re.split(r' ',line)
+        new_line=re.split(r' ', line)
         for i in new_line:
            new_list.append(i)
     return new_list
