@@ -11,9 +11,9 @@ def fileReader(path):
     with open(path, 'r', encoding='utf-8') as f:
         # read data of files line by line
         for line in f.readlines():
-            content.append(line)
-
+            content.append(line.strip())
     return content
+
 def fileWriter(file, path):
     '''
     write files
@@ -41,10 +41,10 @@ def preprocess_line(content):
         lines = lines.lower()
         # replace all characters to be removed by space
         rstr= r"[^0-9a-z\.]"
-        newlines = re.sub(rstr," ",lines)
+        newlines = re.sub(rstr, " ", lines)
         # convert all digits to 0
         digit_rstr = r'[0-9]+'
-        newlines = re.sub(digit_rstr,'0',newlines)
+        newlines = re.sub(digit_rstr, '0', newlines)
         new_content.append(newlines)
     return new_content
 
