@@ -61,14 +61,16 @@ def Smoothing(ch_dic,tokens):
 
 
 start_time = time.clock()
-de_path = '../task1/de_output'
-de_prob_path = './de_prob_output'
-tokens = np.array(fileReader(de_path)).flatten()
+languahe_list = ['de', 'en', 'es']
+for language in languahe_list:
+    de_path = '../task1/' + language + '_output'
+    de_prob_path = './' + language + '_prob_output'
+    tokens = np.array(fileReader(de_path)).flatten()
 
-character_dic = characterCounter(tokens)
-probability_dic = estimate_3gram(character_dic)
-smooth_prob_dic = Smoothing(character_dic, tokens)
-fileWriter(smooth_prob_dic, de_prob_path)
+    character_dic = characterCounter(tokens)
+    probability_dic = estimate_3gram(character_dic)
+    smooth_prob_dic = Smoothing(character_dic, tokens)
+    fileWriter(smooth_prob_dic, de_prob_path)
 
 last_time = time.clock() - start_time
 print('procedure time:', last_time)

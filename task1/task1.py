@@ -50,20 +50,12 @@ def preprocess_line(content):
 
 
 start_time = time.clock()
-de_path = "../data/training.de"
-de_write_path = './de_output'
-stems = preprocess_line(fileReader(de_path))
-fileWriter(stems, de_write_path)
-
-en_path = "../data/training.en"
-en_write_path = './en_output'
-stems = preprocess_line(fileReader(en_path))
-fileWriter(stems, en_write_path)
-
-es_path = "../data/training.es"
-es_write_path = './es_output'
-stems = preprocess_line(fileReader(es_path))
-fileWriter(stems, es_write_path)
+languahe_list = ['de', 'en', 'es']
+for language in languahe_list:
+    de_path = '../data/training.' + language
+    de_write_path = './' + language + '_output'
+    stems = preprocess_line(fileReader(de_path))
+    fileWriter(stems, de_write_path)
 
 last_time = time.clock() - start_time
 print('procedure time:', last_time)
