@@ -26,45 +26,49 @@ def fileWriter(file, path):
 #     return token_list, character3_list
 
 def characterCounter(token):
-    character3_dic = {}
-    character2_dic = {}
+    character_dic = {}
     for sentence in token:
         for i in range(len(sentence) - 2):
-            if character3_dic.__contains__(sentence[i] + sentence[i + 1] + sentence[i + 2]) == False:
-                character3_dic[sentence[i] + sentence[i + 1] + sentence[i + 2]] = 1
+            if character_dic.__contains__(sentence[i] + sentence[i + 1] + sentence[i + 2]) == False:
+                character_dic[sentence[i] + sentence[i + 1] + sentence[i + 2]] = 1
             else:
-                character3_dic[sentence[i] + sentence[i + 1] + sentence[i + 2]] += 1
+                character_dic[sentence[i] + sentence[i + 1] + sentence[i + 2]] += 1
         for i in range(len(sentence) - 1):
-            if character2_dic.__contains__(sentence[i] + sentence[i + 1]) == False:
-                character2_dic[sentence[i] + sentence[i + 1]] = 1
+            if character_dic.__contains__(sentence[i] + sentence[i + 1]) == False:
+                character_dic[sentence[i] + sentence[i + 1]] = 1
             else:
-                character2_dic[sentence[i] + sentence[i + 1]] += 1
+                character_dic[sentence[i] + sentence[i + 1]] += 1
 
-    return character3_dic , character2_dic
+    return character_dic
 
-def estimate_3gram(ch3_dic,ch2_dic):
+def estimate_3gram(ch_dic):
     probability_dic = {}
-    for key in ch3_dic.keys():
-        probability = ch3_dic[key]/ch2_dic[key[0]+key[1]]
-        probability_dic[key] = probability
+    for key in ch_dic.keys():
+        if len(key) == 3:
+
+           probability = ch_dic[key]/ch_dic[key[0]+key[1]]
+           probability_dic[key] = probability
     return probability_dic
-def Smoothing(ch3_dic,ch2_dic,tokens):
+
+
+def Smoothing(ch_dic,tokens):
     alpha_value = 0.01
     smooth_prob_dic = {}
     total = 0
     for sentence in tokens:
         for i in sentence:
             total += 1
-    for key in ch3_dic.keys():
-        smooth_prob_dic[key] = (ch3_dic[key]+ alpha_value) / (ch2_dic[key[0]+key[1]] + total*alpha_value)
+    for key in ch_dic.keys():
+        if len(key) ==3:
+           smooth_prob_dic[key] = (ch_dic[key] + alpha_value) / (ch_dic[key[0]+key[1]] + total*alpha_value)
     return smooth_prob_dic
 
 
 
 de_path = '../task1/de_output'
 tokens = np.array(fileReader(de_path)).flatten()
-character3_dic,character2_dic = characterCounter(tokens)
-probability_dic = estimate_3gram(character3_dic,character2_dic)
-smooth_prob_dic = Smoothing(character3_dic,character2_dic,tokens)
+character_dic = characterCounter(tokens)
+probability_dic = estimate_3gram(character_dic)
+smooth_prob_dic = Smoothing(character_dic,tokens)
 print(probability_dic)
 print(smooth_prob_dic)
