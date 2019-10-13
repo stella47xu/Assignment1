@@ -23,7 +23,7 @@ def fileWriter(file, path):
     '''
     with open(path, 'w', encoding='utf-8') as f:
         for line in file:
-            f.writelines(line+'\n')
+            f.writelines('##'+line+'#\n')
     f.close()
 
 def preprocess_line(content):
