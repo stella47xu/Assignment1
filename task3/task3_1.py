@@ -21,6 +21,23 @@ def fileWriter(file, path):
 #             character3_list.append(sentence[idx:(idx+3)])
 #     return token_list, character3_list
 
+def createProbDic():
+    probability_dic = {}
+    char_list = [chr(i) for i in range(97, 123)]
+    char_list.extend(['0', ' ', '.', '#'])
+    for first_char in char_list:
+        for second_char in char_list:
+            for third_char in char_list:
+                probability_dic[first_char+second_char+third_char] = 0
+                if first_char == '#':
+                    if third_char == '#':
+                        probability_dic.pop(first_char+second_char+third_char)
+                else:
+                    if second_char == '#':
+                        probability_dic.pop(first_char+second_char+third_char)
+
+    return probability_dic
+
 def characterCounter(token):
     character_dic = {}
     for sentence in token:
@@ -37,8 +54,7 @@ def characterCounter(token):
 
     return character_dic
 
-def estimate_3gram(ch_dic):
-    probability_dic = {}
+def estimate_3gram(ch_dic, probability_dic):
     for key in ch_dic.keys():
         if len(key) == 3:
            probability = ch_dic[key]/ch_dic[key[0:2]]
@@ -46,14 +62,12 @@ def estimate_3gram(ch_dic):
 
     return probability_dic
 
-def Smoothing(ch_dic,tokens):
+def Smoothing(ch_dic, tokens, smooth_prob_dic):
     alpha_value = 0.01
-    smooth_prob_dic = {}
-    total = 0
     length_cnt = [len(sentence) for sentence in tokens]
     total = sum(length_cnt)
     for key in ch_dic.keys():
-        if len(key) ==3:
+        if len(key) == 3:
            smooth_prob_dic[key] = (ch_dic[key] + alpha_value) / (ch_dic[key[0:2]] + total*alpha_value)
 
     return smooth_prob_dic
@@ -61,6 +75,7 @@ def Smoothing(ch_dic,tokens):
 
 
 start_time = time.clock()
+probability_dic = createProbDic()
 languahe_list = ['de', 'en', 'es']
 for language in languahe_list:
     de_path = '../task1/' + language + '_output'
@@ -68,8 +83,8 @@ for language in languahe_list:
     tokens = np.array(fileReader(de_path)).flatten()
 
     character_dic = characterCounter(tokens)
-    probability_dic = estimate_3gram(character_dic)
-    smooth_prob_dic = Smoothing(character_dic, tokens)
+    gram3_prob_dic = estimate_3gram(character_dic, probability_dic)
+    smooth_prob_dic = Smoothing(character_dic, tokens, probability_dic)
     fileWriter(smooth_prob_dic, de_prob_path)
 
 last_time = time.clock() - start_time
