@@ -11,7 +11,7 @@ def fileWriter(file, path):
     '''
     with open(path, 'w', encoding='utf-8') as f:
         for key in sorted(file.keys()):
-            if len(key) ==3:
+            if len(key) == 3:
                 f.writelines(key + '\t{:.3e}\n'.format(file[key]))
     f.close()
 
@@ -63,13 +63,11 @@ def estimate_3gram(ch_dic):
 
 def Smoothing(smoothing_dic, tokens):
     alpha_value = 0.01
-    length_cnt = [len(sentence) for sentence in tokens]
-    total = sum(length_cnt)
+
     for key in smoothing_dic.keys():
-        if len(key) ==3:
-            # total
-           smoothing_dic[key] = (smoothing_dic[key] + alpha_value) / (smoothing_dic[key[0:2]] + total*alpha_value)
-            
+        if len(key) == 3:
+            smoothing_dic[key] = (smoothing_dic[key] + alpha_value) / (smoothing_dic[key[0:2]] + len(smoothing_dic)*alpha_value)
+
     return smoothing_dic
 
 
