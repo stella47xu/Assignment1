@@ -22,8 +22,9 @@ def fileWriter(file, path):
     :return:
     '''
     with open(path, 'w', encoding='utf-8') as f:
-        for line in file:
-            f.writelines('##'+line+'#\n')
+        for line in file :
+            if len(line)!= 1:
+               f.writelines('##'+line+'#\n')
     f.close()
 
 def preprocess_line(content):
