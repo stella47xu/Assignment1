@@ -11,15 +11,9 @@ def fileWriter(file, path):
     '''
     with open(path, 'w', encoding='utf-8') as f:
         for key in sorted(file.keys()):
-            f.writelines(key + '\t{:.3e}\n'.format(file[key]))
+            if len(key) ==3:
+                f.writelines(key + '\t{:.3e}\n'.format(file[key]))
     f.close()
-
-# def characterTransform(content):
-#     character3_list = []
-#     for sentence in content:
-#         for idx in range(len(sentence)-2):
-#             character3_list.append(sentence[idx:(idx+3)])
-#     return token_list, character3_list
 
 def createProbDic():
     probability_dic = {}
@@ -29,6 +23,7 @@ def createProbDic():
         for second_char in char_list:
             for third_char in char_list:
                 probability_dic[first_char+second_char+third_char] = 0
+                probability_dic[first_char+second_char] = 0
                 if first_char == '#':
                     if third_char == '#':
                         probability_dic.pop(first_char+second_char+third_char)
@@ -38,53 +33,59 @@ def createProbDic():
 
     return probability_dic
 
-def characterCounter(token):
-    character_dic = {}
+def characterCounter(token, smoothing_dic):
+    gram3_dic = {}
     for sentence in token:
         for i in range(len(sentence) - 2):
-            if sentence[i:(i+3)] not in character_dic.keys():
-                character_dic[sentence[i:(i+3)]] = 1
+            # print(sentence[i:(i+3)])
+            smoothing_dic[sentence[i:(i+3)]] += 1
+            if sentence[i:(i+3)] not in gram3_dic.keys():
+                gram3_dic[sentence[i:(i+3)]] = 1
             else:
-                character_dic[sentence[i:(i+3)]] += 1
+                gram3_dic[sentence[i:(i+3)]] += 1
         for i in range(len(sentence) - 1):
-            if sentence[i:(i+2)] not in character_dic.keys():
-                character_dic[sentence[i:(i+2)]] = 1
+            smoothing_dic[sentence[i:(i+2)]] += 1
+            if sentence[i:(i+2)] not in gram3_dic.keys():
+                gram3_dic[sentence[i:(i+2)]] = 1
             else:
-                character_dic[sentence[i:(i+2)]] += 1
+                gram3_dic[sentence[i:(i+2)]] += 1
 
-    return character_dic
+    return gram3_dic, smoothing_dic
 
-def estimate_3gram(ch_dic, probability_dic):
+def estimate_3gram(ch_dic):
+    gram3_prob_dic = {}
     for key in ch_dic.keys():
         if len(key) == 3:
            probability = ch_dic[key]/ch_dic[key[0:2]]
-           probability_dic[key] = probability
+           gram3_prob_dic[key] = probability
 
-    return probability_dic
+    return gram3_prob_dic
 
-def Smoothing(ch_dic, tokens, smooth_prob_dic):
+def Smoothing(smoothing_dic, tokens):
     alpha_value = 0.01
     length_cnt = [len(sentence) for sentence in tokens]
     total = sum(length_cnt)
-    for key in ch_dic.keys():
-        if len(key) == 3:
-           smooth_prob_dic[key] = (ch_dic[key] + alpha_value) / (ch_dic[key[0:2]] + total*alpha_value)
-
-    return smooth_prob_dic
+    for key in smoothing_dic.keys():
+        if len(key) ==3:
+            # total
+           smoothing_dic[key] = (smoothing_dic[key] + alpha_value) / (smoothing_dic[key[0:2]] + total*alpha_value)
+            
+    return smoothing_dic
 
 
 
 start_time = time.clock()
-probability_dic = createProbDic()
-languahe_list = ['de', 'en', 'es']
+smoothing_dic = createProbDic()
+# languahe_list = ['de', 'en', 'es']
+languahe_list = ['de', 'en']
 for language in languahe_list:
     de_path = '../task1/' + language + '_output'
     de_prob_path = './' + language + '_prob_output'
     tokens = np.array(fileReader(de_path)).flatten()
 
-    character_dic = characterCounter(tokens)
-    gram3_prob_dic = estimate_3gram(character_dic, probability_dic)
-    smooth_prob_dic = Smoothing(character_dic, tokens, probability_dic)
+    gram3_count_dic, smoothing_count_dic = characterCounter(tokens, smoothing_dic)
+    gram3_prob_dic = estimate_3gram(gram3_count_dic)
+    smooth_prob_dic = Smoothing(smoothing_count_dic, tokens)
     fileWriter(smooth_prob_dic, de_prob_path)
 
 last_time = time.clock() - start_time
