@@ -3,12 +3,6 @@ import numpy as np
 import time
 
 def fileWriter(file, path):
-    '''
-    write files
-    :param file:
-    :param path:
-    :return:
-    '''
     with open(path, 'w', encoding='utf-8') as f:
         for key in sorted(file.keys()):
             if len(key) ==3:
@@ -33,7 +27,6 @@ def createProbDic():
                 else:
                     if second_char == '#':
                         probability_dic.pop(first_char+second_char+third_char)
-                        character2_dic.pop(first_char+second_char)
 
     return probability_dic, character2_dic
 
@@ -73,10 +66,12 @@ def estimate_3gram(ch_dic):
 
 def Smoothing(smoothing_dic, character2_dic):
     alpha_value = 0.01
-    # length_cnt = [len(sentence) for sentence in tokens]
-    # total = sum(length_cnt)
+    total = 0
     for key in smoothing_dic.keys():
-        smoothing_dic[key] = (smoothing_dic[key] + alpha_value) / (smoothing_dic[key[0:2]] + character2_dic[key[0:2]]*alpha_value)
+        for key_ in character2_dic.keys():
+            if key[0:2] == key_:
+                total += 1
+        smoothing_dic[key] = (smoothing_dic[key] + alpha_value) / (character2_dic[key[0:2]] + total*alpha_value)
             
     return smoothing_dic
 
