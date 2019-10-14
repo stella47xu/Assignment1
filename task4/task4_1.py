@@ -1,6 +1,6 @@
 import re
-import random
 import time
+import random
 
 def fileReader(path):
     '''
@@ -12,34 +12,53 @@ def fileReader(path):
     with open(path, 'r', encoding='utf-8') as f:
         # read data of files line by line
         for line in f.readlines():
-            content.append(re.split('[\t\n]', line))
+            model_line = re.split('[\t\n]', line)
+            content.append(model_line[0])
 
     return content
 
-def generate_from_LM(model, n):
-    first_index = random.randint(0, len(model)-1)
-    generate_str = model[first_index][0]
-    for _ in range(n-2):
-        max_str = ''
-        max_prob = .0
-        for character_3 in model:
-            if character_3[0][0:2] == generate_str[-2:]:
-                if float(character_3[1]) > max_prob:
-                    max_str = character_3[0]
-                    max_prob = float(character_3[1])
+def fileWriter(file, path):
+    '''
+    write files
+    :param file:
+    :param path:
+    :return:
+    '''
+    with open(path, 'w', encoding='utf-8') as f:
+        for line in file:
+            f.writelines(line)
+    f.close()
 
-        generate_str += max_str[2]
+def generate_from_LM(model, n):
+    first_list = []
+    for character_3 in model:
+        if character_3[0:2] == '##':
+            first_list.append(character_3)
+
+    generate_str = first_list[random.randint(0, len(first_list)-1)]
+    for i in range(n-2):
+        next_list = []
+        for character_3 in model:
+            if character_3[0:2] == generate_str[-2:]:
+                next_list.append(character_3)
+
+        if not next_list:
+            generate_str += '\n' + first_list[random.randint(0, len(first_list)-1)]
+        else:
+            next_index = random.randint(0, len(next_list)-1)
+            generate_str += next_list[next_index][2]
 
     return generate_str
 
 
 start_time = time.clock()
 model_path_list = ['../data/model-br.en', '../task3/en_prob_output']
+model_writer_path_list = ['./model-br_output', './training_output']
 str_length = 300
-for model_path in model_path_list:
-    model = fileReader(model_path)
+for i in range(len(model_path_list)):
+    model = fileReader(model_path_list[i])
     generate_str = generate_from_LM(model, str_length)
-    print(generate_str)
+    fileWriter(generate_str, model_writer_path_list[i])
 
 last_time = time.clock() - start_time
 print('procedure time:', last_time)
