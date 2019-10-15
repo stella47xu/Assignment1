@@ -1,3 +1,7 @@
+'''
+    generate the 1st, 2nd and 3rd characters randomly
+    generate the later character randomly based on the combinations in model
+'''
 import re
 import time
 import random
@@ -5,8 +9,8 @@ import random
 def fileReader(path):
     '''
     read files
-    :param path:
-    :return:
+    :param path: file path
+    :return: list for file content
     '''
     content = []
     with open(path, 'r', encoding='utf-8') as f:
@@ -20,9 +24,9 @@ def fileReader(path):
 def fileWriter(file, path):
     '''
     write files
-    :param file:
-    :param path:
-    :return:
+    :param file: files to be writen
+    :param path: file path
+    :return: None
     '''
     with open(path, 'w', encoding='utf-8') as f:
         for line in file:
@@ -30,17 +34,29 @@ def fileWriter(file, path):
     f.close()
 
 def generate_from_LM(model, n):
+    '''
+    generate sequences based on model
+    :param model:  language model
+    :param n: the length of output
+    :return: output sequence
+    '''
+    # sentences start with '##'
     generate_str = '##'
     for i in range(n-2):
         next_list = []
         for character_3 in model:
+            # find the combination whose the 1st and 2nd character are same with the last two characters of generate_str
             if character_3[0:2] == generate_str[-2:]:
+                # add the combinations into next_list
                 next_list.append(character_3)
 
         if not next_list:
+            # when the sentences end up with '#', generate a new sentence
             generate_str += '\n##'
         else:
+            # else: select the character in next_list randomly
             next_index = random.randint(0, len(next_list)-1)
+            # add the character into generate_str
             generate_str += next_list[next_index][2]
 
     return generate_str
