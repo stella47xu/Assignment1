@@ -2,7 +2,6 @@ from task1.task1 import fileReader
 import numpy as np
 import time
 
-
 def fileWriter(file, path):
     '''
     write model
@@ -14,7 +13,6 @@ def fileWriter(file, path):
         for key in sorted(file.keys()):
             f.writelines(key + '\t{:.3e}\n'.format(file[key]))
     f.close()
-
 
 def createProbDic():
     '''
@@ -42,7 +40,6 @@ def createProbDic():
                         probability_dic.pop(first_char + second_char + third_char)
 
     return probability_dic, character2_dic
-
 
 def characterCounter(token, smoothing_dic, character2_dic):
     '''
