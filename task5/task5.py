@@ -44,10 +44,9 @@ def perplexity(content,prob_dic):
     """
     pp_list=[]
     for lines in content:
-        p_line = sum([-math.log(prob_dic[lines[i:(i+3)]],2) for i in range(len(lines)-2)])
+        p_line = sum([math.log(prob_dic[lines[i:(i+3)]],2) for i in range(len(lines)-2)])
                # compute the probabilities of each line
-        pp_line = 1/pow(p_line,1/len(lines))
-
+        pp_line = pow(2,p_line/-len(lines))
         # compute the perplexity of each line
         pp_list.append(pp_line)
     pp = sum(pp_list)/len(pp_list)
