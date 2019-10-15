@@ -1,12 +1,15 @@
+'''
+    generate the 1st, 2nd and 3rd characters randomly
+    generate the later character with the highest probability in model
+'''
 import re
 import time
-import random
 
 def fileReader(path):
     '''
     read files
-    :param path:
-    :return:
+    :param path: file path
+    :return: list for file content
     '''
     content = []
     with open(path, 'r', encoding='utf-8') as f:
@@ -20,9 +23,9 @@ def fileReader(path):
 def fileWriter(file, path):
     '''
     write files
-    :param file:
-    :param path:
-    :return:
+    :param file: files to be writen
+    :param path: file path
+    :return: None
     '''
     with open(path, 'w', encoding='utf-8') as f:
         for line in file:
@@ -30,19 +33,30 @@ def fileWriter(file, path):
     f.close()
 
 def generate_from_LM(model, n):
+    '''
+    generate sequences based on model
+    :param model:  language model
+    :param n: the length of output
+    :return: output sequence
+    '''
+    # sentences start with '##'
     generate_str = '##'
     for i in range(n-2):
         max_prob = .0
         max_str = ''
         for character_3 in model:
+            # find the combination whose the 1st and 2nd character are same with the last two characters of generate_str
             if character_3[0][0:2] == generate_str[-2:]:
+                # find the character with the highest probability based on model
                 if float(character_3[1]) > max_prob:
                     max_str = character_3[0]
                     max_prob = float(character_3[1])
 
         if not max_str:
+            # when the sentences end up with '#', generate a new sentence
             generate_str += '\n##'
         else:
+            # else: add the character into generate_str
             generate_str += max_str[2]
 
     return generate_str
