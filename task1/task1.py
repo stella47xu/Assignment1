@@ -23,8 +23,7 @@ def fileWriter(file, path):
     '''
     with open(path, 'w', encoding='utf-8') as f:
         for line in file :
-            if len(line)!= 1:
-               f.writelines('##'+line+'#\n')
+               f.writelines(line+'\n')
     f.close()
 
 def preprocess_line(content):
@@ -39,14 +38,16 @@ def preprocess_line(content):
     new_content = []
     for lines in content:
         # convert all characters into lowercase
-        lines = lines.lower()
-        # replace all characters to be removed by space
-        rstr= r"[^0-9a-z\.]"
-        newlines = re.sub(rstr, " ", lines)
-        # convert all digits to 0
-        digit_rstr = r'[0-9]+'
-        newlines = re.sub(digit_rstr, '0', newlines)
-        new_content.append(newlines)
+        if len(lines) != 1:
+            lines = lines.lower()
+            # replace all characters to be removed by space
+            rstr= r"[^0-9a-z\.]"
+            newlines = re.sub(rstr, " ", lines)
+            # convert all digits to 0
+            digit_rstr = r'[0-9]+'
+            newlines = re.sub(digit_rstr, '0', newlines)
+            new_content.append('##'+newlines+'#')
+            # add '##' to the start of the each sentence and '#' to the end of each sentence
     return new_content
 
 

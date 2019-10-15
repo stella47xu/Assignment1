@@ -1,74 +1,102 @@
-import re
-import math
-from collections import Counter
 from task1.task1 import fileReader
 import numpy as np
 import time
-import random
+
 
 def fileWriter(file, path):
-    '''
-    write files
-    :param file:
-    :param path:
-    :return:
-    '''
     with open(path, 'w', encoding='utf-8') as f:
-        for key in file.keys():
-            f.writelines(key+'\n')
+        for key in sorted(file.keys()):
+            if len(key) == 3:
+                f.writelines(key + '\t{:.3e}\n'.format(file[key]))
     f.close()
 
-# def characterTransform(content):
-#     character3_list = []
-#     for sentence in content:
-#         for idx in range(len(sentence)-2):
-#             character3_list.append(sentence[idx:(idx+3)])
-#     return token_list, character3_list
 
-def characterCounter(token):
-    character_dic = {}
+def createProbDic():
+    # character3_count/ gram3_probability
+    probability_dic = {}
+    # character2_count
+    character2_dic = {}
+    char_list = [chr(i) for i in range(97, 123)]
+    char_list.extend(['0', ' ', '.', '#'])
+    for first_char in char_list:
+        for second_char in char_list:
+            for third_char in char_list:
+                probability_dic[first_char + second_char + third_char] = 0
+                character2_dic[first_char + second_char] = 0
+                if first_char == '#':
+                    if third_char == '#':
+                        probability_dic.pop(first_char + second_char + third_char)
+                else:
+                    if second_char == '#':
+                        probability_dic.pop(first_char + second_char + third_char)
+
+    return probability_dic, character2_dic
+
+
+def characterCounter(token, smoothing_dic, character2_dic):
+    '''
+    count character3 and character2
+    :param token: tokens in input
+    :param smoothing_dic: (dic)all possible combinations in character3
+    :param character2_dic: (dic)all possible combinations in character2
+    :return:
+    '''
+    gram3_dic = {}
     for sentence in token:
         for i in range(len(sentence) - 2):
-            if character_dic.__contains__(sentence[i] + sentence[i + 1] + sentence[i + 2]) == False:
-                character_dic[sentence[i] + sentence[i + 1] + sentence[i + 2]] = 1
+            smoothing_dic[sentence[i:(i + 3)]] += 1
+            if sentence[i:(i + 3)] not in gram3_dic.keys():
+                gram3_dic[sentence[i:(i + 3)]] = 1
             else:
-                character_dic[sentence[i] + sentence[i + 1] + sentence[i + 2]] += 1
+                gram3_dic[sentence[i:(i + 3)]] += 1
         for i in range(len(sentence) - 1):
-            if character_dic.__contains__(sentence[i] + sentence[i + 1]) == False:
-                character_dic[sentence[i] + sentence[i + 1]] = 1
+            character2_dic[sentence[i:(i + 2)]] += 1
+            if sentence[i:(i + 2)] not in gram3_dic.keys():
+                gram3_dic[sentence[i:(i + 2)]] = 1
             else:
-                character_dic[sentence[i] + sentence[i + 1]] += 1
+                gram3_dic[sentence[i:(i + 2)]] += 1
 
-    return character_dic
+    return gram3_dic, smoothing_dic, character2_dic
+
 
 def estimate_3gram(ch_dic):
-    probability_dic = {}
+    gram3_prob_dic = {}
     for key in ch_dic.keys():
         if len(key) == 3:
+            probability = ch_dic[key] / ch_dic[key[0:2]]
+            gram3_prob_dic[key] = probability
 
-           probability = ch_dic[key]/ch_dic[key[0]+key[1]]
-           probability_dic[key] = probability
-    return probability_dic
+    return gram3_prob_dic
 
 
-def Smoothing(ch_dic,tokens):
+def Smoothing(smoothing_dic, character2_dic):
     alpha_value = 0.01
-    smooth_prob_dic = {}
     total = 0
-    for sentence in tokens:
-        for i in sentence:
-            total += 1
-    for key in ch_dic.keys():
-        if len(key) ==3:
-           smooth_prob_dic[key] = (ch_dic[key] + alpha_value) / (ch_dic[key[0]+key[1]] + total*alpha_value)
-    return smooth_prob_dic
+    for key in smoothing_dic.keys():
+        for key_ in character2_dic.keys():
+            if key[0:2] == key_:
+                total += 1
+        smoothing_dic[key] = (smoothing_dic[key] + alpha_value) / (character2_dic[key[0:2]] + total * alpha_value)
+
+    return smoothing_dic
 
 
+start_time = time.clock()
+smoothing_dic, character2_dic = createProbDic()
+languahe_list = ['de', 'en', 'es']
+# languahe_list = ['de', 'en']
+for language in languahe_list:
+    # input file path
+    de_path = '../task1/' + language + '_output'
+    # output file path
+    de_prob_path = './' + language + '_prob_output'
+    # tokens in input file
+    tokens = np.array(fileReader(de_path)).flatten()
 
-de_path = '../task1/de_output'
-tokens = np.array(fileReader(de_path)).flatten()
-character_dic = characterCounter(tokens)
-probability_dic = estimate_3gram(character_dic)
-smooth_prob_dic = Smoothing(character_dic,tokens)
-print(probability_dic)
-print(smooth_prob_dic)
+    gram3_count_dic, smoothing_count_dic, character2_dic = characterCounter(tokens, smoothing_dic, character2_dic)
+    gram3_prob_dic = estimate_3gram(gram3_count_dic)
+    smooth_prob_dic = Smoothing(smoothing_count_dic, character2_dic)
+    fileWriter(smooth_prob_dic, de_prob_path)
+
+last_time = time.clock() - start_time
+print('procedure time:', last_time)
