@@ -4,8 +4,8 @@ import time
 def fileReader(path):
     '''
     read files
-    :param path:
-    :return:
+    :param path: file path
+    :return: file content
     '''
     content = []
     with open(path, 'r', encoding='utf-8') as f:
@@ -17,13 +17,13 @@ def fileReader(path):
 def fileWriter(file, path):
     '''
     write files
-    :param file:
-    :param path:
-    :return:
+    :param file: file content
+    :param path: file path
+    :return: None
     '''
     with open(path, 'w', encoding='utf-8') as f:
-        for line in file :
-               f.writelines(line+'\n')
+        for line in file:
+            f.writelines(line+'\n')
     f.close()
 
 def preprocess_line(content):
@@ -37,12 +37,12 @@ def preprocess_line(content):
     '''
     new_content = []
     for lines in content:
-        # convert all characters into lowercase
         if len(lines) != 1:
+            # convert all characters into lowercase
             lines = lines.lower()
-            # replace all characters to be removed by space
-            rstr= r"[^0-9a-z\.]"
-            newlines = re.sub(rstr, " ", lines)
+            # delete all characters required to be removed
+            rstr= r"[^0-9a-z\.\s]"
+            newlines = re.sub(rstr, "", lines)
             # convert all digits to 0
             digit_rstr = r'[0-9]+'
             newlines = re.sub(digit_rstr, '0', newlines)
