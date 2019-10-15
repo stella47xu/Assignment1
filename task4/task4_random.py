@@ -29,8 +29,10 @@ def fileWriter(file, path):
     :return: None
     '''
     with open(path, 'w', encoding='utf-8') as f:
-        for line in file:
+        for line in file.split('#'):
+            # write output without '#'
             f.writelines(line)
+
     f.close()
 
 def generate_from_LM(model, n):
@@ -42,7 +44,8 @@ def generate_from_LM(model, n):
     '''
     # sentences start with '##'
     generate_str = '##'
-    for i in range(n-2):
+    char_length = 0
+    while char_length < n:
         next_list = []
         for character_3 in model:
             # find the combination whose the 1st and 2nd character are same with the last two characters of generate_str
@@ -53,11 +56,14 @@ def generate_from_LM(model, n):
         if not next_list:
             # when the sentences end up with '#', generate a new sentence
             generate_str += '\n##'
+            # if a sentence ends, char_length equals char_length minus 1('#')
+            char_length -= 1
         else:
             # else: select the character in next_list randomly
             next_index = random.randint(0, len(next_list)-1)
             # add the character into generate_str
             generate_str += next_list[next_index][2]
+            char_length += 1
 
     return generate_str
 

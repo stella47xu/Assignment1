@@ -28,8 +28,10 @@ def fileWriter(file, path):
     :return: None
     '''
     with open(path, 'w', encoding='utf-8') as f:
-        for line in file:
+        for line in file.split('#'):
+            # write output without '#'
             f.writelines(line)
+
     f.close()
 
 def generate_from_LM(model, n):
@@ -41,7 +43,8 @@ def generate_from_LM(model, n):
     '''
     # sentences start with '##'
     generate_str = '##'
-    for i in range(n-2):
+    char_length = 0
+    while char_length < n:
         max_prob = .0
         max_str = ''
         for character_3 in model:
@@ -55,9 +58,12 @@ def generate_from_LM(model, n):
         if not max_str:
             # when the sentences end up with '#', generate a new sentence
             generate_str += '\n##'
+            # if a sentence ends, char_length equals char_length minus 1('#')
+            char_length -= 1
         else:
             # else: add the character into generate_str
             generate_str += max_str[2]
+            char_length += 1
 
     return generate_str
 
