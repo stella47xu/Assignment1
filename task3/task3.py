@@ -4,15 +4,24 @@ import time
 
 
 def fileWriter(file, path):
+    '''
+    write model
+    :param file: model file content
+    :param path: model file path
+    :return: None
+    '''
     with open(path, 'w', encoding='utf-8') as f:
         for key in sorted(file.keys()):
-            if len(key) == 3:
-                f.writelines(key + '\t{:.3e}\n'.format(file[key]))
+            f.writelines(key + '\t{:.3e}\n'.format(file[key]))
     f.close()
 
 
 def createProbDic():
-    # character3_count/ gram3_probability
+    '''
+    create a dictionary with all possible combinations as keys
+    :return: a empty dictionary with 3-chars combinations and a empty dictionary with 2-chars combinations
+    '''
+    # character3_count or gram3_probability
     probability_dic = {}
     # character2_count
     character2_dic = {}
@@ -24,9 +33,11 @@ def createProbDic():
                 probability_dic[first_char + second_char + third_char] = 0
                 character2_dic[first_char + second_char] = 0
                 if first_char == '#':
+                    # if the first and third char are both '#', delete it
                     if third_char == '#':
                         probability_dic.pop(first_char + second_char + third_char)
                 else:
+                    # if the first char is not '#' and the sencond char is '#', delete it
                     if second_char == '#':
                         probability_dic.pop(first_char + second_char + third_char)
 
@@ -39,7 +50,9 @@ def characterCounter(token, smoothing_dic, character2_dic):
     :param token: tokens in input
     :param smoothing_dic: (dic)all possible combinations in character3
     :param character2_dic: (dic)all possible combinations in character2
-    :return:
+    :return: a dictionary with 3-chars combinations counts(tokens),
+             a dictionary with 3-chars combinations counts(all possible situations)
+             a dictionary with 2-chars combinations counts(all possible situations)
     '''
     gram3_dic = {}
     for sentence in token:
@@ -58,20 +71,20 @@ def characterCounter(token, smoothing_dic, character2_dic):
 
     return gram3_dic, smoothing_dic, character2_dic
 
-
+#estimate 3-gram probability
 def estimate_3gram(ch_dic):
     gram3_prob_dic = {}
     for key in ch_dic.keys():
-        if len(key) == 3:
-            probability = ch_dic[key] / ch_dic[key[0:2]]
-            gram3_prob_dic[key] = probability
+        probability = ch_dic[key] / ch_dic[key[0:2]]
+        gram3_prob_dic[key] = probability
 
     return gram3_prob_dic
 
-
+#estimate smoothing probability
 def Smoothing(smoothing_dic, character2_dic):
     alpha_value = 0.01
     total = 0
+    # count total
     for key in smoothing_dic.keys():
         for key_ in character2_dic.keys():
             if key[0:2] == key_:
@@ -84,7 +97,6 @@ def Smoothing(smoothing_dic, character2_dic):
 start_time = time.clock()
 smoothing_dic, character2_dic = createProbDic()
 languahe_list = ['de', 'en', 'es']
-# languahe_list = ['de', 'en']
 for language in languahe_list:
     # input file path
     de_path = '../task1/' + language + '_output'
