@@ -79,8 +79,7 @@ def Smoothing(smoothing_dic, character2_dic):
 
 start_time = time.clock()
 smoothing_dic, character2_dic = createProbDic()
-# languahe_list = ['de', 'en', 'es']
-languahe_list = ['de', 'en']
+languahe_list = ['de', 'en', 'es']
 for language in languahe_list:
     # input file path
     de_path = '../task1/' + language + '_output'
